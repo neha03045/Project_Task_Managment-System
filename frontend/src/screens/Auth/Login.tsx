@@ -13,6 +13,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../api/apiClient';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
+
 export default function Login({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,20 +32,22 @@ export default function Login({ navigation }: any) {
   };
 
   return (
-    <LinearGradient colors={['#FAFAFA', '#F0F0F0']} style={styles.container}>
+    <LinearGradient colors={['#F7F7F7', '#E8E8E8']} style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.innerContainer}
       >
-        <View style={styles.headerContainer}>
+        {/* Header */}
+        <View style={styles.header}>
           <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to continue</Text>
+          <Text style={styles.subtitle}>Login to continue</Text>
         </View>
 
-        <View style={styles.formContainer}>
+        {/* Form */}
+       
           <TextInput
             placeholder="Email"
-            placeholderTextColor="#A0A0A0"
+            placeholderTextColor="#999"
             value={email}
             onChangeText={setEmail}
             style={styles.input}
@@ -55,112 +58,81 @@ export default function Login({ navigation }: any) {
           <View style={{ position: 'relative' }}>
             <TextInput
               placeholder="Password"
-              placeholderTextColor="#A0A0A0"
+              placeholderTextColor="#999"
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
-              style={[styles.input, { color: '#000', paddingRight: 40}]} 
+              style={[styles.input, { paddingRight: 40 }]}
             />
             <TouchableOpacity
               onPress={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute',
-                right: 15,
-                top: '20%',
-              }}
+              style={styles.eyeIcon}
             >
               <Icon
                 name={showPassword ? 'eye-off' : 'eye'}
                 size={22}
-                color="#A0A0A0"
+                color="#555"
               />
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <LinearGradient
-              colors={['#FFD43B', '#FBC02D']}
-              style={styles.loginButtonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
-              <Text style={styles.loginButtonText}>Login</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
           <TouchableOpacity
             onPress={() => navigation.navigate('ForgotPassword')}
+            style={{ alignSelf: 'flex-end', marginBottom: 16 }}
           >
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
-        </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <LinearGradient
+              colors={['#D4AF37', '#B8974B']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.buttonGradient}
+            >
+              <Text style={styles.buttonText}>Login</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>Don't have an account?</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+              <Text style={styles.signupLink}> Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+      
       </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  innerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-  },
-  headerContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 36,
-    color: '#2F5233',
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginTop: 6,
-    textAlign: 'center',
-  },
-  formContainer: {
-    width: '100%',
-  },
+  container: { flex: 1, padding: 24 },
+  innerContainer: { flex: 1, justifyContent: 'center' },
+  header: { alignItems: 'center', marginBottom: 32 },
+  title: { fontSize: 32, fontWeight: '700', color: '#333' },
+  subtitle: { fontSize: 16, color: '#666', marginTop: 6 },
+  card: { backgroundColor: '#fff', borderRadius: 20, padding: 20 },
   input: {
-    backgroundColor: '#fff',
-    padding: 16,
+    backgroundColor: '#F7F7F7',
+    padding: 14,
     borderRadius: 12,
-    fontSize: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 2,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E0E0E0',
+    marginBottom: 16,
+    fontSize: 16,
+    color: '#000',
   },
-  loginButton: {
-    marginTop: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
-    elevation: 3,
-  },
-  loginButtonGradient: {
-    padding: 16,
-    borderRadius: 12,
+  eyeIcon: { position: 'absolute', right: 10, top: 12 },
+  forgotText: { color: '#555', fontSize: 14 },
+  button: { borderRadius: 20, overflow: 'hidden', marginBottom: 16 },
+  buttonGradient: {
+    paddingVertical: 14,
     alignItems: 'center',
+    borderRadius: 20,
   },
-  loginButtonText: {
-    color: '#2F5233',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  forgotText: {
-    color: '#2F5233',
-    marginTop: 16,
-    textAlign: 'center',
-    fontSize: 15,
-  },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  signupContainer: { flexDirection: 'row', justifyContent: 'center' },
+  signupText: { fontSize: 14, color: '#666' },
+  signupLink: { fontSize: 14, fontWeight: '700', color: '#B8974B' },
 });
