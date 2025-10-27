@@ -16,66 +16,75 @@ export default function ForgotPassword({ navigation }: any) {
   const [email, setEmail] = useState('');
 
   const handleForgot = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address');
+      return;
+    }
+
     try {
       const res = await api.post('/forgot-password', { email });
+      console.log('Reset Token:', res.data.resetToken);
       Alert.alert(
-        'Token Generated',
-        `Your reset token: ${res.data.resetToken}`,
+        'Success',
+        'Password reset token has been sent successfully!',
       );
       navigation.navigate('ResetPassword');
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.message || 'Failed');
+      console.error('Forgot password error:', error);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to generate token',
+      );
     }
   };
 
-return (
-  <LinearGradient colors={['#F7F7F7', '#E8E8E8']} style={styles.container}>
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.innerContainer}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Forgot Password</Text>
-        <Text style={styles.subtitle}>
-          Enter your email to reset password
-        </Text>
-      </View>
-
-      {/* Form */}
-      <View style={styles.form}>
-        <TextInput
-          placeholder="Email"
-          placeholderTextColor="#999"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-
-        <TouchableOpacity style={styles.button} onPress={handleForgot}>
-          <LinearGradient
-            colors={['#D4AF37', '#B8974B']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.buttonGradient}
-          >
-            <Text style={styles.buttonText}>Generate Token</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>Remembered password?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-            <Text style={styles.signupLink}> Login</Text>
-          </TouchableOpacity>
+  return (
+    <LinearGradient colors={['#F7F7F7', '#E8E8E8']} style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.innerContainer}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Forgot Password</Text>
+          <Text style={styles.subtitle}>
+            Enter your email to reset password
+          </Text>
         </View>
-      </View>
-    </KeyboardAvoidingView>
-  </LinearGradient>
-);
 
+        {/* Form */}
+        <View style={styles.form}>
+          <TextInput
+            placeholder="Email"
+            placeholderTextColor="#999"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleForgot}>
+            <LinearGradient
+              colors={['#D4AF37', '#B8974B']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.buttonGradient}
+            >
+              <Text style={styles.buttonText}>Generate Token</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>Remembered password?</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+              <Text style={styles.signupLink}> Login</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </LinearGradient>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -86,7 +95,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 32, fontWeight: '700', color: '#333' },
   subtitle: { fontSize: 16, color: '#666', marginTop: 6, textAlign: 'center' },
 
-  form: { gap: 16 }, 
+  form: { gap: 16 },
 
   input: {
     backgroundColor: '#fff',
@@ -106,8 +115,11 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
-  signupContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 8 },
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
   signupText: { fontSize: 14, color: '#666' },
   signupLink: { fontSize: 14, fontWeight: '700', color: '#B8974B' },
 });
-
