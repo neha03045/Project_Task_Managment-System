@@ -1,20 +1,30 @@
-import type { Request, Response } from "express";
-import prisma from "../prisma";
-const bcrypt = require("bcryptjs");
-import { v4 as uuidv4 } from "uuid"; 
-import { generateToken } from "../utils/generateToken";
+import type { Request, Response } from 'express';
+import prisma from '../prisma';
+const bcrypt = require('bcryptjs');
+import { v4 as uuidv4 } from 'uuid';
+import { generateToken } from '../utils/generateToken';
+import nodemailer from 'nodemailer';
 
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.EMAIL_PORT ? Number(process.env.EMAIL_PORT) : 587,
+  secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // Register user
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    console.log("Register request body:", req.body);
+    console.log('Register request body:', req.body);
     const { name, email, password } = req.body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      console.log("Email already registered:", email);
-      return res.status(400).json({ message: "Email already registered" });
+      console.log('Email already registered:', email);
+      return res.status(400).json({ message: 'Email already registered' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -23,12 +33,12 @@ export const registerUser = async (req: Request, res: Response) => {
     });
 
     const token = generateToken(user.id);
-    console.log("User created successfully:", user);
+    console.log('User created successfully:', user);
 
-    res.status(201).json({ message: "Registered successfully", token });
+    res.status(201).json({ message: 'Registered successfully', token });
   } catch (err) {
-    console.error(" Error in registerUser:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error(' Error in registerUser:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -38,45 +48,46 @@ export const loginUser = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    if (!isMatch)
+      return res.status(401).json({ message: 'Invalid credentials' });
 
     const token = generateToken(user.id);
-    res.status(200).json({ message: "Login successful", token });
+    res.status(200).json({ message: 'Login successful', token });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Forgot password
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     const resetToken = uuidv4();
-    const expiry = new Date(Date.now() + 10 * 60 * 1000); 
+    const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
     await prisma.user.update({
       where: { email },
-      data: {
-        resetToken,
-        resetTokenExpiry: expiry,
-      },
+      data: { resetToken, resetTokenExpiry: expiry },
     });
 
-    res.status(200).json({
-      message: "Password reset token generated (valid for 10 mins)",
-      resetToken,
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Password Reset Token',
+      text: `Here is your password reset token: ${resetToken}\nThis token will expire in 10 minutes.`,
     });
+
+    res.status(200).json({ message: 'Reset token sent to your email' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -85,29 +96,26 @@ export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token, newPassword } = req.body;
 
-    const user = await prisma.user.findFirst({
-      where: {
-        resetToken: token,
-        resetTokenExpiry: { gt: new Date() },
-      },
-    });
+    const user = await prisma.user.findFirst({ where: { resetToken: token } });
 
-    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+    if (!user || !user.resetTokenExpiry || user.resetTokenExpiry < new Date()) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
 
-    const hashed = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        password: hashed,
+        password: hashedPassword,
         resetToken: null,
         resetTokenExpiry: null,
       },
     });
 
-    res.status(200).json({ message: "Password reset successful" });
+    res.status(200).json({ message: 'Password reset successful' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };

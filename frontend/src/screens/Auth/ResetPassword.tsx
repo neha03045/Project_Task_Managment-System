@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,30 +8,51 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-} from "react-native";
-import LinearGradient from "react-native-linear-gradient";
-import Icon from "react-native-vector-icons/Ionicons";
-import { api } from "../../api/apiClient";
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { api } from '../../api/apiClient';
 
 export default function ResetPassword({ navigation }: any) {
-  const [token, setToken] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); 
-
+  const [token, setToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const handleReset = async () => {
+    if (!token || !newPassword) {
+      Alert.alert('Error', 'Please enter both token and new password');
+      return;
+    }
+
     try {
-      await api.post("/reset-password", { token, newPassword });
-      Alert.alert("Success", "Password reset successful");
-      navigation.navigate("Login");
+      const response = await api.post('/reset-password', {
+        token,
+        newPassword,
+      });
+
+      if (response.status === 200) {
+        Alert.alert(
+          'Success',
+          'Password reset successful. You can now log in.',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.replace('Login'),
+            },
+          ],
+        );
+      }
     } catch (error: any) {
-      Alert.alert("Error", error.response?.data?.message || "Failed");
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to reset password',
+      );
     }
   };
 
   return (
-    <LinearGradient colors={["#F7F7F7", "#E8E8E8"]} style={styles.container}>
+    <LinearGradient colors={['#F7F7F7', '#E8E8E8']} style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.innerContainer}
       >
         <Text style={styles.title}>Reset Password</Text>
@@ -48,7 +69,7 @@ export default function ResetPassword({ navigation }: any) {
             style={styles.input}
           />
 
-          <View style={{ position: "relative" }}>
+          <View style={{ position: 'relative' }}>
             <TextInput
               placeholder="New Password"
               placeholderTextColor="#999"
@@ -59,10 +80,10 @@ export default function ResetPassword({ navigation }: any) {
             />
             <TouchableOpacity
               onPress={() => setShowPassword(!showPassword)}
-              style={{ position: "absolute", right: 10, top: 12 }}
+              style={{ position: 'absolute', right: 10, top: 12 }}
             >
               <Icon
-                name={showPassword ? "eye-off" : "eye"}
+                name={showPassword ? 'eye-off' : 'eye'}
                 size={22}
                 color="#555"
               />
@@ -71,7 +92,7 @@ export default function ResetPassword({ navigation }: any) {
 
           <TouchableOpacity style={styles.button} onPress={handleReset}>
             <LinearGradient
-              colors={["#D4AF37", "#B8974B"]}
+              colors={['#D4AF37', '#B8974B']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.buttonGradient}
@@ -82,7 +103,7 @@ export default function ResetPassword({ navigation }: any) {
 
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Remembered your password?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
               <Text style={styles.signupLink}> Login</Text>
             </TouchableOpacity>
           </View>
@@ -92,41 +113,40 @@ export default function ResetPassword({ navigation }: any) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  innerContainer: { flex: 1, justifyContent: "center" },
+  innerContainer: { flex: 1, justifyContent: 'center' },
   title: {
     fontSize: 32,
-    fontWeight: "700",
-    color: "#333",
-    textAlign: "center",
+    fontWeight: '700',
+    color: '#333',
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
-    textAlign: "center",
+    color: '#666',
+    textAlign: 'center',
     marginBottom: 20,
   },
   form: { marginTop: 10 },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     padding: 14,
     borderRadius: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: '#E0E0E0',
     fontSize: 16,
-    color: "#000",
+    color: '#000',
   },
-  button: { borderRadius: 20, overflow: "hidden", marginBottom: 16 },
-  buttonGradient: { padding: 16, alignItems: "center", borderRadius: 12 },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  button: { borderRadius: 20, overflow: 'hidden', marginBottom: 16 },
+  buttonGradient: { padding: 16, alignItems: 'center', borderRadius: 12 },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   signupContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: 8,
   },
-  signupText: { fontSize: 14, color: "#666" },
-  signupLink: { fontSize: 14, fontWeight: "700", color: "#B8974B" },
+  signupText: { fontSize: 14, color: '#666' },
+  signupLink: { fontSize: 14, fontWeight: '700', color: '#B8974B' },
 });

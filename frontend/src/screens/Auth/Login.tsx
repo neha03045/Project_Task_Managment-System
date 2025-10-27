@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   eyeIcon: { position: 'absolute', right: 10, top: 12 },
-  forgotText: { color: '#555', fontSize: 14 },
+  forgotText: { color: '#B8974B', fontSize: 14, fontWeight: '700' },
   button: { borderRadius: 20, overflow: 'hidden', marginBottom: 16 },
   buttonGradient: {
     paddingVertical: 14,
