@@ -59,27 +59,20 @@ model task {
 }
 
 model user {
-  id                 Int        @id @default(autoincrement())
-  name               String
-  email              String     @unique
-  password           String
-  createdAt          DateTime   @default(now())
-  resetToken         String?    // token for password reset
-  resetTokenExpiry   DateTime?  // token expiry
-  comment            comment[]
-  projectmember      projectmember[]
-  task               task[]
+  id               Int             @id @default(autoincrement())
+  name             String
+  email            String          @unique
+  password         String
+  createdAt        DateTime        @default(now())
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  comment          comment[]
+  projectmember    projectmember[]
+  task             task[]
 }
-
 
 enum task_status {
   TODO
   IN_PROGRESS
   DONE
-}
-
-enum user_role {
-  ADMIN
-  CLIENT
-  MEMBER
 }

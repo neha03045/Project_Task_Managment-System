@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes";
+import router from "./routes/authRoutes";
 
 
 dotenv.config();
@@ -11,11 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", router);
 
-// Convert PORT to number safely
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
+

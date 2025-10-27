@@ -1,27 +1,33 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import prisma from "../prisma";
-import bcrypt from "bcryptjs";
+const bcrypt = require("bcryptjs");
 import { v4 as uuidv4 } from "uuid"; 
 import { generateToken } from "../utils/generateToken";
+
 
 // Register user
 export const registerUser = async (req: Request, res: Response) => {
   try {
+    console.log("Register request body:", req.body);
     const { name, email, password } = req.body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) return res.status(400).json({ message: "Email already registered" });
+    if (existingUser) {
+      console.log("Email already registered:", email);
+      return res.status(400).json({ message: "Email already registered" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = await prisma.user.create({
       data: { name, email, password: hashedPassword },
     });
 
     const token = generateToken(user.id);
+    console.log("User created successfully:", user);
+
     res.status(201).json({ message: "Registered successfully", token });
   } catch (err) {
-    console.error(err);
+    console.error(" Error in registerUser:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -53,9 +59,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Generate secure random token using uuid
     const resetToken = uuidv4();
-    const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    const expiry = new Date(Date.now() + 10 * 60 * 1000); 
 
     await prisma.user.update({
       where: { email },
@@ -65,7 +70,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
       },
     });
 
-    // Here, normally you would email the resetToken to the user
     res.status(200).json({
       message: "Password reset token generated (valid for 10 mins)",
       resetToken,

@@ -20,14 +20,20 @@ export default function Register({ navigation }: any) {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async () => {
-    try {
-      await api.post('/register', { name, email, password });
-      Alert.alert('Success', 'Registered successfully');
-      navigation.navigate('SignIn');
-    } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.message || 'Failed');
-    }
-  };
+  try {
+    console.log("📤 Sending register request:", { name, email, password });
+    const response = await api.post("/register", { name, email, password });
+
+    console.log("✅ Register success response:", response.data);
+    Alert.alert("Success", "Registered successfully");
+    navigation.navigate("SignIn");
+  } catch (error: any) {
+    console.log("❌ Register error:", error);
+    console.log("🔍 Error response:", error.response?.data);
+    Alert.alert("Error", error.response?.data?.message || "Failed");
+  }
+};
+
 
   return (
     <LinearGradient colors={['#F7F7F7', '#E8E8E8']} style={styles.container}>
