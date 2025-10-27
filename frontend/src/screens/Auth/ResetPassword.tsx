@@ -17,12 +17,12 @@ export default function ResetPassword({ navigation }: any) {
   const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  
   const handleReset = async () => {
     if (!token || !newPassword) {
       Alert.alert('Error', 'Please enter both token and new password');
       return;
     }
-
     try {
       const response = await api.post('/reset-password', {
         token,
@@ -33,13 +33,8 @@ export default function ResetPassword({ navigation }: any) {
         Alert.alert(
           'Success',
           'Password reset successful. You can now log in.',
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation.replace('Login'),
-            },
-          ],
         );
+        navigation.navigate('SignIn');
       }
     } catch (error: any) {
       Alert.alert(
@@ -103,7 +98,7 @@ export default function ResetPassword({ navigation }: any) {
 
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Remembered your password?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
               <Text style={styles.signupLink}> Login</Text>
             </TouchableOpacity>
           </View>
