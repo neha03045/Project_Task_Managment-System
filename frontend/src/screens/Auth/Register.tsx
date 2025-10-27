@@ -21,15 +21,15 @@ export default function Register({ navigation }: any) {
 
   const handleRegister = async () => {
   try {
-    console.log("📤 Sending register request:", { name, email, password });
+    console.log("Sending register request:", { name, email, password });
     const response = await api.post("/register", { name, email, password });
 
-    console.log("✅ Register success response:", response.data);
+    console.log("Register success response:", response.data);
     Alert.alert("Success", "Registered successfully");
     navigation.navigate("SignIn");
   } catch (error: any) {
-    console.log("❌ Register error:", error);
-    console.log("🔍 Error response:", error.response?.data);
+    console.log("Register error:", error);
+    console.log("Error response:", error.response?.data);
     Alert.alert("Error", error.response?.data?.message || "Failed");
   }
 };
