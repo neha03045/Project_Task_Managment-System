@@ -8,7 +8,7 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
   port: process.env.EMAIL_PORT ? Number(process.env.EMAIL_PORT) : 587,
-  secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+  secure: process.env.EMAIL_SECURE === 'true',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -32,7 +32,7 @@ export const registerUser = async (req: Request, res: Response) => {
       data: { name, email, password: hashedPassword },
     });
 
-    const token = generateToken(user.id);
+     const token = generateToken(user.id.toString());
     console.log('User created successfully:', user);
 
     res.status(201).json({ message: 'Registered successfully', token });
@@ -54,7 +54,7 @@ export const loginUser = async (req: Request, res: Response) => {
     if (!isMatch)
       return res.status(401).json({ message: 'Invalid credentials' });
 
-    const token = generateToken(user.id);
+     const token = generateToken(user.id.toString());
     res.status(200).json({ message: 'Login successful', token });
   } catch (err) {
     console.error(err);
@@ -70,7 +70,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const resetToken = uuidv4();
-    const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    const expiry = new Date(Date.now() + 10 * 60 * 1000); 
 
     await prisma.user.update({
       where: { email },
