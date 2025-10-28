@@ -6,7 +6,7 @@ const HomeScreen = () => {
   const { token, setToken } = useContext(AuthContext);
 
   const handleLogout = () => {
-    setToken(null); // Clear token to log out
+    setToken(null); 
   };
 
   return (
